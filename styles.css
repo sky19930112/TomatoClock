@@ -1,0 +1,11 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin-top: 40px;
+  }
+
+  .work-timer,
+  .break-timer {
+    font-size: 36px;
+    margin-top: 10px;
+  }

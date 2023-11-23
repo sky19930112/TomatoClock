@@ -1,46 +1,62 @@
-let timer;
-let isRunning = false;
+const workTime = 25 * 60; // 25 minutes in seconds
+const breakTime = 5 * 60; // 5 minutes in seconds
 
-const startButton = document.getElementById("startButton");
-const resetButton = document.getElementById("resetButton");
-const timerDisplay  = document.getElementById("timer");
+let isWorking = false;
+let intervalId;
 
-function startTimer(duration){
-    let minutes, seconds;
-    timer = setInterval(function () {
-        minutes = parseInt(duration / 60, 10);
-        seconds = parseInt(duration % 60, 10);
+function startTimer() {
+  const workTimerDisplay = document.getElementById('workTimer');
+  const breakTimerDisplay = document.getElementById('breakTimer');
+  const startButton = document.getElementById('startButton');
+  const resetButton = document.getElementById('resetButton');
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+  let duration = isWorking ? breakTime : workTime;
 
-        timerDisplay.textContent = minutes + ":" + seconds;
+  intervalId = setInterval(() => {
+    if (duration >= 0) {
+      if (isWorking) {
+        breakTimerDisplay.textContent = `Break Time: ${formatTime(duration)}`;
+      } else {
+        workTimerDisplay.textContent = `Work Time: ${formatTime(duration)}`;
+      }
+      duration--;
+    } else {
+      clearInterval(intervalId);
+      if (isWorking) {
+        isWorking = false;
+        duration = workTime;
+        breakTimerDisplay.style.display = 'none';
+        workTimerDisplay.style.display = 'block';
+      } else {
+        isWorking = true;
+        duration = breakTime;
+        workTimerDisplay.style.display = 'none';
+        breakTimerDisplay.style.display = 'block';
+      }
+      startButton.style.display = 'block';
+      resetButton.style.display = 'block';
+    }
+  }, 1000);
 
-        if (--duration < 0) {
-            clearInterval(timer);
-            timerDisplay.textContent = "00:00";
-            alert("Time's up!");
-            isRunning = false;
-        }
-    }, 1000)
+  startButton.style.display = 'none';
+  resetButton.style.display = 'none';
+
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  }
 }
 
-
-startButton.addEventListener("click", function(){
-    if (!isRunning) {
-        startTimer(25 * 60); // 25 minutes in seconds
-        isRunning = true;
-        startButton.textContent = "Pause";
-    } else {
-        clearInterval(timer);
-        isRunning = false;
-        startButton.textContent = "Resume";
-    }
+document.getElementById('startButton').addEventListener('click', () => {
+  startTimer();
 });
 
-resetButton.addEventListener("click", function(){
-    clearInterval(timer);
-    isRunning = false;
-    timerDisplay.textContent = "25:00";
-    startButton.textContent = "Start";
+document.getElementById('resetButton').addEventListener('click', () => {
+  clearInterval(intervalId);
+  isWorking = false;
+  document.getElementById('workTimer').textContent = '';
+  document.getElementById('breakTimer').textContent = '';
+  document.getElementById('startButton').style.display = 'block';
+  document.getElementById('resetButton').style.display = 'none';
 });
